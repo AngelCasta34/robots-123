@@ -194,6 +194,57 @@ int GraemeShip::SetupShip() {
     return Finalize();
 }
 
+int UssScrub::SetupShip() {
+
+    SCAN();
+
+    IF_SEEN() {
+        TURN_TO_SCAN();
+
+        IF_SHIP_HP_LE(6) {
+            THRUST(4);
+            IF_SHIP_CAN_FIRE_PHOTON() { FIRE_PHOTON(); }
+            IF_SHIP_CAN_FIRE_PHASER() { FIRE_PHASER(); }
+        }
+
+        IF_SCAN_LE(220) {
+            THRUST(4);
+            IF_SHIP_CAN_FIRE_PHASER() { FIRE_PHASER(); }
+            IF_SHIP_CAN_FIRE_PHOTON() { FIRE_PHOTON(); }
+        }
+
+        IF_SCAN_LE(520) {
+            THRUST(2);
+            IF_SHIP_CAN_FIRE_PHASER() { FIRE_PHASER(); }
+            IF_SHIP_CAN_FIRE_PHOTON() { FIRE_PHOTON(); }
+        }
+
+        ELSE() {
+            THRUST(3);
+        }
+
+    } ELSE() {
+        THRUST(4);
+    }
+
+    IF_SHIP_FUEL_LE(35) {
+        SCAN();
+        IF_SEEN() {
+            TURN_TO_SCAN();
+            IF_SCAN_LE(350) {
+                THRUST(2);
+                IF_SHIP_CAN_FIRE_PHASER() { FIRE_PHASER(); }
+            } ELSE() {
+                THRUST(1);
+            }
+        }
+    }
+
+    return Finalize();
+}
+
+
+
 // ===== AstroBots game implementation =====
 AstroBots::AstroBots() {
     _currentTurn = 0;
@@ -209,6 +260,7 @@ std::vector<std::unique_ptr<ShipBase>> AstroBots::makeShips() {
     v.emplace_back(std::make_unique<DroneShip>());
     v.emplace_back(std::make_unique<MinerShip>());
     v.emplace_back(std::make_unique<GraemeShip>());
+    v.emplace_back(std::make_unique<UssScrub>());
     return v;
 }
 
